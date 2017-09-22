@@ -1,7 +1,16 @@
-#IFNDEF OMNI_ROBOT_UTIL
-#DEFINE OMNI_ROBOT_UTIL
+#ifndef OMNI_ROBOT_UTIL
+#define OMNI_ROBOT_UTIL
 
-void getAngVelFourWheels(double radius, double length, double width, double vx, double vy, double wz, double *u);
-void getTwistFourWheels(double radius, double length, double width, double u1, double u2, double u3, double u4, double *twist);
+/*
+    Defining length, width and height of the robot, and radius of the wheels.
+*/
 
-#ENDIF
+#define LENGTH 0.2
+#define RADIUS 0.1
+#define WIDTH  0.2
+#define HEIGHT 0.1
+
+void getAngVelFourWheels(double vx, double vy, double wz, double *u);
+void getTwistFourWheels(double u1, double u2, double u3, double u4, double *twist);
+
+#endif
