@@ -24,7 +24,7 @@ class joyStick(object):
         self.Rate.sleep()
 
 def main():
-    rospy.init_node('joy_control', anonymous = True)
+    rospy.init_node('joy_control')
     joy = joyStick()
     rospy.spin()
 

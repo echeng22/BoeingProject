@@ -1,36 +1,56 @@
-#include <iostream>
 #include "omni_robot_util.h"
+//#include <iostream>
 
-void getAngVelFourWheels(double radius, double length, double width, double vx, double vy, double wz, double *u)
+/*
+* getAngVelFourWheels: Converts twist values into four wheel velocities in Kangaroo Units.
+*   - vx, vy: Velocity in X and Y direction. Units are in meters/sec.
+*   - wz: Rotational velocity around the z-axis. Units are in radians/sec.
+*   - *u: Array of int with length 4 used to hold the resulting wheel velocities. Values are in Kangaroo Units
+*/
+void getAngVelFourWheels(double vx, double vy, double wz, int *u)
 {
     int i;
-    double H[4][3] = {{-length - width, 1, -1}, {length + width, 1, 1}, {length + width, 1, -1}, {-length - width, 1, 1}};
+    double H[4][3] = {{-LENGTH - WIDTH, 1, -1}, {LENGTH + WIDTH, 1, 1}, {LENGTH + WIDTH, 1, -1}, {-LENGTH - WIDTH, 1, 1}};
     double twist[3] = {wz, vx, vy};
     // matrix calculation
+    // Adding .5 before converting to int does rounding process without need for adding another function.
     for (i = 0; i < 4; i++)
     {
-        u[i] = (H[i][0] * twist[0] + H[i][1] * twist[1] + H[i][2] * twist[2]) / radius;
+        u[i] = (int)(((H[i][0] * twist[0] + H[i][1] * twist[1] + H[i][2] * twist[2]) / RADIUS) * (KU_avg/.6384) + .5);
     }
 }
 
-void getTwistFourWheels(double radius, double length, double width, double u1, double u2, double u3, double u4, double *twist)
+/*
+* getTwistFourWheels: Converts four Kangaroo Unit values to four wheel velocities into twist values.
+*   - u1, u2, u3, u4: Velocities of each wheel. Units are in Kangaroo Units.
+*   - *twist: Array of doubles with length 3 used to hold resulting twist values. Values are in meters/sec, meters/sec, and radians/sec respectively.
+*/
+
+void getTwistFourWheels(int u1, int u2, int u3, int u4, double *twist)
 {
-    double Vx = (u1 + u2) * radius / 2;
-    double Vy = radius / 2 * (u2 + u4 - 2 * (Vx / radius));
-    double Wz = (u1 - (Vx / radius) + (Vy / radius)) * radius / (-length - width);
+    double v1 = u1 * .6384/KU_avg;
+    double v2 = u2 * .6384/KU_avg;
+    double v3 = u3 * .6384/KU_avg;
+    double v4 = u4 * .6384/KU_avg;            
+    
+    double Vx = (v1 + v2) * RADIUS / 2;
+    double Vy = RADIUS / 2 * (v2 + v4 - 2 * (Vx / RADIUS));
+    double Wz = (v1 - (Vx / RADIUS) + (Vy / RADIUS)) * RADIUS / (-LENGTH - WIDTH);
     twist[0] = Vx;
     twist[1] = Vy;
     twist[2] = Wz;
 }
 
-// int main()
-// {
-//     // add(2, 3);
-//     double u[4];
-//     getAngVelFourWheels(0.25, 1.3, 1.27, 1, 1.267, -1.24, u);
-//     double twist[3];
-//     getTwistFourWheels(0.25, 1.3, 1.27, u[0], u[1], u[2], u[3], twist);
-//     std::cout << twist[0] << ", " << twist[1] << ", " << twist[2] << std::endl;
+/*
+Some error exists due to floating number error. Values when converting back and forth are accurate to each other.
 
-//     return 0;
-// }
+int main()
+{
+    int testVel[4];
+    getAngVelFourWheels(.5, .5, 1, testVel);
+    std::cout << testVel[0] << ", " << testVel[1] << ", " << testVel[2] << ", " << testVel[3] << std::endl;
+    double testTwist[3];
+    getTwistFourWheels(testVel[0], testVel[1], testVel[2], testVel[3], testTwist);
+    std::cout << testTwist[0] << ", " << testTwist[1] << ", " << testTwist[2] << std::endl;
+}
+*/

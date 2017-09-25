@@ -1,36 +1,30 @@
-#include <iostream>
-#include "omni_robot_util.h"
+#ifndef OMNI_ROBOT_UTIL
+#define OMNI_ROBOT_UTIL
 
-void getAngVelFourWheels(double radius, double length, double width, double vx, double vy, double wz, double *u)
-{
-    int i;
-    double H[4][3] = {{-length - width, 1, -1}, {length + width, 1, 1}, {length + width, 1, -1}, {-length - width, 1, 1}};
-    double twist[3] = {wz, vx, vy};
-    // matrix calculation
-    for (i = 0; i < 4; i++)
-    {
-        u[i] = (H[i][0] * twist[0] + H[i][1] * twist[1] + H[i][2] * twist[2]) / radius;
-    }
-}
+/*
+    Defining length, width and height of the robot, and radius of the wheels.
+        -Wheel to Wheel Width measurement: 19 inches. 
+        -Thickness of wheels 3 inches.
+        -Wheel to Wheel Length measurement: 16.25 inches. 
+        -Radius of Wheels: 4 inches.
+        -Not sure if height is needed...commented out for now.
+*/
 
-void getTwistFourWheels(double radius, double length, double width, double u1, double u2, double u3, double u4, double *twist)
-{
-    double Vx = (u1 + u2) * radius / 2;
-    double Vy = radius / 2 * (u2 + u4 - 2 * (Vx / radius));
-    double Wz = (u1 - (Vx / radius) + (Vy / radius)) * radius / (-length - width);
-    twist[0] = Vx;
-    twist[1] = Vy;
-    twist[2] = Wz;
-}
+#define LENGTH 0.2064
+#define RADIUS 0.1016
+#define WIDTH  0.2032
+//#define HEIGHT 0.1
 
-// int main()
-// {
-//     // add(2, 3);
-//     double u[4];
-//     getAngVelFourWheels(0.25, 1.3, 1.27, 1, 1.267, -1.24, u);
-//     double twist[3];
-//     getTwistFourWheels(0.25, 1.3, 1.27, u[0], u[1], u[2], u[3], twist);
-//     std::cout << twist[0] << ", " << twist[1] << ", " << twist[2] << std::endl;
+// Kangaroo Unit Nominal Conversion Values. Sending these values to each respective wheel results in about 60 RPM +/- .5. May need to adjust when tuning the robot on the ground...
+// 60 RPM for this robot is approximately .6384 m/s. Conversion to KU units is #KU_CONSTANT/.6384 and vice versa.
 
-//     return 0;
-// }
+#define KU1_1 355
+#define KU1_2 330
+#define KU2_1 340
+#define KU2_2 370
+#define KU_avg 349
+
+void getAngVelFourWheels(double vx, double vy, double wz, int *u);
+void getTwistFourWheels(int u1, int u2, int u3, int u4, double *twist);
+
+#endif
