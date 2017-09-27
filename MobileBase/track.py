@@ -17,12 +17,14 @@ class trackControl(object):
         self.pos_x = self.r
         self.pos_y = 0
         self.num = 5000
+        # control wheels rotate
+        self.zero()
         self.trajectory()
+        while(1):
+            self.zero()
 
 
     def trajectory(self):
-
-        self.zero()
 
         # Circle, counterclockwise
         for t in range(1, self.num + 1):
@@ -32,9 +34,6 @@ class trackControl(object):
             self.control(xp, yp)
             self.pos_x = xp
             self.pos_y = yp
-
-        while(1):
-            self.zero()
 
 
     def zero(self):
