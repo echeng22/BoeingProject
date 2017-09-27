@@ -4,6 +4,7 @@ from geometry_msgs.msg import Twist
 import numpy as np
 import math
 import sys
+import tf
 
 
 class trackControl(object):
@@ -19,9 +20,9 @@ class trackControl(object):
         self.pos_x = self.r
         self.pos_y = 0
         self.num = 5000
-        self.track = track 
-        # print "Show: ", self.track  
-        self.trajectory()
+        self.track = track
+        self.br = tf.TransformBroadcaster() 
+        self.trajectory()        
 
     def trajectory(self):
 
@@ -93,6 +94,7 @@ class trackControl(object):
 
         self._trackPub.publish(self.twist_mag)
         self.Rate.sleep()
+        self.br.sendTransform((self.pos_x, self.pos_y, 0), (0, 0, 0, 2), rospy.Time.now(), "base", "map")
 
 def main():
     rospy.init_node('track_control')
@@ -107,6 +109,5 @@ def main():
     rospy.spin()
 
 if __name__=="__main__":
-    # print 'Argument list: ', str(sys.argv)
     main()
 
