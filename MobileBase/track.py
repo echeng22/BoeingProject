@@ -19,7 +19,10 @@ class trackControl(object):
         self.num = 5000
         self.trajectory()
 
+
     def trajectory(self):
+
+        self.zero()
 
         # Circle, counterclockwise
         for t in range(1, self.num + 1):
@@ -30,16 +33,24 @@ class trackControl(object):
             self.pos_x = xp
             self.pos_y = yp
 
-        self.control(xp, yp)
+        while(1):
+            self.zero()
 
-    def control(self, x, y):
-        # desired point (x, y)
 
-        # Initial Twist message
+    def zero(self):
+
+        # set Twist information to zero
         self.twist_mag.linear.x = 0
         self.twist_mag.linear.y = 0
         self.twist_mag.angular.z = 0
 
+        self._trackPub.publish(self.twist_mag)
+        self.Rate.sleep()
+
+
+    def control(self, x, y):
+
+        # desired point (x, y)
         # Calculate the velocity
         det_x = x - self.pos_x
         det_y = y - self.pos_y
@@ -49,8 +60,9 @@ class trackControl(object):
         self._trackPub.publish(self.twist_mag)
         self.Rate.sleep()
 
+
 def main():
-    rospy.init_node('track_control', anonymous = True)
+    rospy.init_node('track_control')
     track = trackControl()
     rospy.spin()
 
