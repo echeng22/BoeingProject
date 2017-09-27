@@ -3,11 +3,12 @@ import rospy
 from geometry_msgs.msg import Twist
 import numpy as np
 import math
+import sys
 
 
 class trackControl(object):
 
-    def __init__(self):
+    def __init__(self, track):
 
         self._trackPub = rospy.Publisher("vel", Twist, queue_size = 1)
         self.hz = 100
@@ -18,56 +19,61 @@ class trackControl(object):
         self.pos_x = self.r
         self.pos_y = 0
         self.num = 5000
+        self.track = track 
+        # print "Show: ", self.track  
         self.trajectory()
 
     def trajectory(self):
 
         # Circle, counterclockwise
-        for t in range(1, self.num + 1):
-            theta = t * 2 * np.pi / self.num
-            yp = self.r * math.sin(theta)
-            xp = self.r * math.cos(theta)
-            self.control(xp, yp)
-            self.pos_x = xp
-            self.pos_y = yp
+        if(self.track == "-C"):
+            for t in range(1, self.num + 1):
+                theta = t * 2 * np.pi / self.num
+                yp = self.r * math.sin(theta)
+                xp = self.r * math.cos(theta)
+                self.control(xp, yp)
+                self.pos_x = xp
+                self.pos_y = yp
 
         # Square, counterclockwise, the radius is half of each side (self.num must be multiplicable by 4), assume self.pos_y = 0 and self.pos_x = self.r
-        for t in range(1, (self.num / 4) + 1) # Straight Up
-            yp = self.pos_y + t * (self.r * 2) / (self.num / 4)
-            self.control(self.pos_x, yp)
-            self.pos_y = yp
-        for t in range(1, (self.num / 4) + 1) # Straight Left
-            xp = self.pos_x - t * (self.r * 2) / (self.num / 4)
-            self.control(xp, self.pos_y)
-            self.pos_x = xp
-        for t in range(1, (self.num / 4) + 1) # Straight Down
-            yp = self.pos_y - t * (self.r * 2) / (self.num / 4)
-            self.control(self.pos_x, yp)
-            self.pos_y = yp
-        for t in range(1, (self.num / 4) + 1) # Straight Right
-            xp = self.pos_x + t * (self.r * 2) / (self.num / 4)
-            self.control(xp, self.pos_y)
-            self.pos_x = xp
+        elif(self.track == "-S"):
+            for t in range(1, (self.num / 4) + 1): # Straight Up
+                yp = self.pos_y + t * (self.r * 2) / (self.num / 4)
+                self.control(self.pos_x, yp)
+                self.pos_y = yp
+            for t in range(1, (self.num / 4) + 1): # Straight Left
+                xp = self.pos_x - t * (self.r * 2) / (self.num / 4)
+                self.control(xp, self.pos_y)
+                self.pos_x = xp
+            for t in range(1, (self.num / 4) + 1): # Straight Down
+                yp = self.pos_y - t * (self.r * 2) / (self.num / 4)
+                self.control(self.pos_x, yp)
+                self.pos_y = yp
+            for t in range(1, (self.num / 4) + 1): # Straight Right
+                xp = self.pos_x + t * (self.r * 2) / (self.num / 4)
+                self.control(xp, self.pos_y)
+                self.pos_x = xp
 
         # Triangle, counterclockwise, the radius is half of the side (self.num must be multiplicable by 3), assume self.pos_y = 0 and self.pos_x = self.r
-        for t in range(1, (self.num / 3) + 1) # Bottom Right to Top vortex
-            yp = self.pos_y + t * (self.r * 2) / (self.num / 3) * np.sin(np.pi / 3)
-            xp = self.pos_x - t * (self.r * 2) / (self.num / 3) * np.cos(np.pi / 3)
-            self.control(xp, yp)  
-            self.pos_x = xp
-            self.pos_y = yp
-        for t in range(1, (self.num / 3) + 1) # Top vortex to Bottom Right 
-            yp = self.pos_y - t * (self.r * 2) / (self.num / 3) * np.cos(np.pi / 6)
-            xp = self.pos_x - t * (self.r * 2) / (self.num / 3) * np.sin(np.pi / 6)
-            self.control(xp, yp)  
-            self.pos_x = xp
-            self.pos_y = yp
-        for t in range(1, (self.num / 3) + 1) # Bottom Left to Bottom Right
-            yp = self.pos_y
-            xp = self.pos_x + t * (self.r * 2) / (self.num / 3)
-            self.control(xp, yp)  
-            self.pos_x = xp
-            self.pos_y = yp
+        elif (self.track == "-T"):
+            for t in range(1, (self.num / 3) + 1): # Bottom Right to Top vortex
+                yp = self.pos_y + t * (self.r * 2) / (self.num / 3) * np.sin(np.pi / 3)
+                xp = self.pos_x - t * (self.r * 2) / (self.num / 3) * np.cos(np.pi / 3)
+                self.control(xp, yp)  
+                self.pos_x = xp
+                self.pos_y = yp
+            for t in range(1, (self.num / 3) + 1): # Top vortex to Bottom Right 
+                yp = self.pos_y - t * (self.r * 2) / (self.num / 3) * np.cos(np.pi / 6)
+                xp = self.pos_x - t * (self.r * 2) / (self.num / 3) * np.sin(np.pi / 6)
+                self.control(xp, yp)  
+                self.pos_x = xp
+                self.pos_y = yp
+            for t in range(1, (self.num / 3) + 1): # Bottom Left to Bottom Right
+                yp = self.pos_y
+                xp = self.pos_x + t * (self.r * 2) / (self.num / 3)
+                self.control(xp, yp)  
+                self.pos_x = xp
+                self.pos_y = yp
 
         self.control(xp, yp)
 
@@ -89,9 +95,18 @@ class trackControl(object):
         self.Rate.sleep()
 
 def main():
-    rospy.init_node('track_control', anonymous = True)
-    track = trackControl()
+    rospy.init_node('track_control')
+    if(len(sys.argv) <= 1):
+        print "Please type arg to specify a type of track \n-C [Circle]\n-S [Square]\n-T [Triangle]"
+    else:
+        if (sys.argv[1] == "-C" or sys.argv[1] == "-S" or sys.argv[1] == "-T"):
+            print "Arg: ", sys.argv[1]
+            track = trackControl(sys.argv[1])
+        else:
+            print "Please type arg to specify a type of track \n-C [Circle]\n-S [Square]\n-T [Triangle]"
     rospy.spin()
 
 if __name__=="__main__":
+    # print 'Argument list: ', str(sys.argv)
     main()
+
