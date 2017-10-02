@@ -35,7 +35,7 @@ class trackControl(object):
             for t in range(1, self.num + 1):
                 theta = t * 2 * np.pi / self.num
                 yp = self.r * math.sin(theta)
-                xp = self.r * math.cos(theta)
+                xp = self.r * math.cos(theta) - self.r
                 self.zero()
                 self.control(xp, yp)
                 self.pos_x = xp
