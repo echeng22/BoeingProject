@@ -25,8 +25,8 @@ class trackControl(object):
         self.pos_y = 0
         self.num = 5000
         self.track = track
-        self.br = tf.TransformBroadcaster() 
-        self.trajectory()        
+        self.br = tf.TransformBroadcaster()
+        self.trajectory()
 
     def trajectory(self):
 
@@ -36,7 +36,7 @@ class trackControl(object):
                 theta = t * 2 * np.pi / self.num
                 yp = self.r * math.sin(theta)
                 xp = self.r * math.cos(theta) - self.r
-                self.zero()
+                # self.zero()
                 self.control(xp, yp)
                 self.pos_x = xp
                 self.pos_y = yp
@@ -45,22 +45,22 @@ class trackControl(object):
         elif(self.track == "-S"):
             for t in range(1, (self.num / 4) + 1): # Straight Up
                 yp = self.pos_y + ((self.r * 2.0) / (self.num / 4.0))
-                self.zero()
+                # self.zero()
                 self.control(self.pos_x, yp)
                 self.pos_y = yp
             for t in range(1, (self.num / 4) + 1): # Straight Left
                 xp = self.pos_x - ((self.r * 2.0) / (self.num / 4.0))
-                self.zero()
+                # self.zero()
                 self.control(xp, self.pos_y)
                 self.pos_x = xp
             for t in range(1, (self.num / 4) + 1): # Straight Down
                 yp = self.pos_y - ((self.r * 2.0) / (self.num / 4.0))
-                self.zero()
+                # self.zero()
                 self.control(self.pos_x, yp)
                 self.pos_y = yp
             for t in range(1, (self.num / 4) + 1): # Straight Right
                 xp = self.pos_x + ((self.r * 2.0) / (self.num / 4.0))
-                self.zero()
+                # self.zero()
                 self.control(xp, self.pos_y)
                 self.pos_x = xp
 
@@ -70,22 +70,22 @@ class trackControl(object):
             for t in range(1, (self.num / 3) + 1): # Bottom Right to Top vortex
                 yp = self.pos_y + ((self.r * 2.0) / (self.num / 3.0)) * np.sin(np.pi / 3)
                 xp = self.pos_x - ((self.r * 2.0) / (self.num / 3.0)) * np.cos(np.pi / 3)
-                self.zero()
-                self.control(xp, yp)  
+                # self.zero()
+                self.control(xp, yp)
                 self.pos_x = xp
                 self.pos_y = yp
-            for t in range(1, (self.num / 3) + 1): # Top vortex to Bottom Right 
+            for t in range(1, (self.num / 3) + 1): # Top vortex to Bottom Right
                 yp = self.pos_y - ((self.r * 2.0) / (self.num / 3.0)) * np.cos(np.pi / 6)
                 xp = self.pos_x - ((self.r * 2.0) / (self.num / 3.0)) * np.sin(np.pi / 6)
-                self.zero()
-                self.control(xp, yp)  
+                # self.zero()
+                self.control(xp, yp)
                 self.pos_x = xp
                 self.pos_y = yp
             for t in range(1, (self.num / 3) + 1): # Bottom Left to Bottom Right
                 yp = self.pos_y
                 xp = self.pos_x + ((self.r * 2.0) / (self.num / 3.0))
-                self.zero()
-                self.control(xp, yp)  
+                # self.zero()
+                self.control(xp, yp)
                 self.pos_x = xp
                 self.pos_y = yp
 
@@ -103,8 +103,8 @@ class trackControl(object):
         # Calculate the velocity
         det_x = x - self.pos_x
         det_y = y - self.pos_y
-        self.twist_mag.linear.x = det_x / self.T
-        self.twist_mag.linear.y = det_y / self.T
+        self.twist_mag.linear.x = (det_x / self.T) / 2
+        self.twist_mag.linear.y = (det_y / self.T) / 2
 
         self._trackPub.publish(self.twist_mag)
         self.Rate.sleep()
